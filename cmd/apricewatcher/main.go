@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	xhtml "golang.org/x/net/html"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -22,14 +24,41 @@ func findPriceNode(content string) string {
 	return node
 }
 
-func extractPrice(html string) float64 {
+func parsePrice(node string) uint64 {
+	reader := strings.NewReader(node)
+	z := xhtml.NewTokenizer(reader)
+
+	var price string
+
+	for {
+		tt := z.Next()
+		switch {
+		case tt == xhtml.StartTagToken:
+			t := z.Token()
+			for _, a := range t.Attr {
+				if a.Key == "content" {
+					price = a.Val
+					break
+				}
+			}
+
+		}
+		break
+	}
+
+	parsed, err := strconv.ParseUint(price, 10, 64)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return parsed
+}
+
+func extractPrice(html string) uint64 {
 	node := findPriceNode(html)
 
-	fmt.Println(node)
-
-	// parse html
-
-	return 0
+	return parsePrice(node)
 }
 
 func requestPrice(url string) {
@@ -59,5 +88,5 @@ func requestPrice(url string) {
 }
 
 func main() {
-	requestPrice("https://www.avito.ru/vladimir/rasteniya/palma_2294526731")
+	requestPrice("https://www.avito.ru/vladimir/kvartiry/2-k._kvartira_522_m_25_et._2285971912")
 }
