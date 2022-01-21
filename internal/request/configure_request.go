@@ -13,6 +13,8 @@ func configureRequest(urlStr string) *http.Request {
 		log.Fatalln(err)
 	}
 
+	ua := randUserAgent()
+
 	//req.Header.Set("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
 	// req.Header.Set("accept-encoding", "gzip, deflate, br")
 	req.Header.Set("accept-language", "ru,en;q=0.9,ru-RU;q=0.8,en-US;q=0.7")
@@ -26,8 +28,7 @@ func configureRequest(urlStr string) *http.Request {
 	req.Header.Set("sec-fetch-site", "none")
 	req.Header.Set("sec-fetch-user", "?1")
 	req.Header.Set("upgrade-insecure-requests", "1")
-	// TODO randomize ua
-	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36")
+	req.Header.Set("user-agent", ua)
 
 	return req
 }
