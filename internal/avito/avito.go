@@ -1,11 +1,11 @@
 package avito
 
 import (
-	"apricewatcher/internal/request"
+	"apricewatcher/internal/scrapper"
 )
 
 func GetPrice(url string) uint64 {
-	pageContent := request.Get(url)
+	pageContent := scrapper.GetHTML(url)
 
 	price := extractPrice(pageContent)
 
