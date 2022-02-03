@@ -2,7 +2,6 @@ package scrapper
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/chromedp/chromedp"
@@ -19,8 +18,6 @@ func GetHTML(url string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println(html)
 
 	return html
 }

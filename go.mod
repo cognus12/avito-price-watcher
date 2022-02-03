@@ -1,4 +1,4 @@
-module apricewatcher
+module apricescrapper
 
 go 1.17
 

@@ -1,7 +1,7 @@
 package avito
 
 import (
-	"apricewatcher/internal/scrapper"
+	"apricescrapper/internal/scrapper"
 )
 
 func GetPrice(url string) uint64 {

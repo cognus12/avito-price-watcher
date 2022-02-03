@@ -1,7 +1,7 @@
 package main
 
 import (
-	"apricewatcher/internal/avito"
+	"apricescrapper/internal/avito"
 )
 
 func main() {
