@@ -1,4 +1,4 @@
-package avito
+package scrapper
 
 import "strings"
 
