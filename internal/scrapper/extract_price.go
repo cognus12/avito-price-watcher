@@ -1,10 +1,11 @@
-package avito
+package scrapper
 
 import (
-	xhtml "golang.org/x/net/html"
 	"log"
 	"strconv"
 	"strings"
+
+	xhtml "golang.org/x/net/html"
 )
 
 func parsePrice(node string) uint64 {
