@@ -2,6 +2,7 @@ package avito
 
 import (
 	"apricescrapper/internal/handlers"
+	"apricescrapper/pkg/helpers"
 	"encoding/json"
 	"net/http"
 
@@ -23,9 +24,9 @@ func (h *handler) Register(r *httprouter.Router) {
 }
 
 func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	city := r.URL.Query().Get("city")
-	category := r.URL.Query().Get("category")
-	slug := r.URL.Query().Get("slug")
+	city := helpers.GetQueryParam(r, "city")
+	category := helpers.GetQueryParam(r, "city")
+	slug := helpers.GetQueryParam(r, "slug")
 
 	params := urlParams{city, category, slug}
 
@@ -38,29 +39,17 @@ func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	jsonBytes, err := json.Marshal(adInfo)
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-
-		return
-	}
-
-	w.Write(jsonBytes)
+	h.responseJson(w, adInfo)
 }
 
-/*
+func (h *handler) responseJson(w http.ResponseWriter, s interface{}) {
+	jsonBytes, err := json.Marshal(s)
 
-func sendJSON(w http.ResponseWriter, v interface{}) {
-	js, err := json.Marshal(v)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(js)
-}s
-
-*/
+	w.Write(jsonBytes)
+}
