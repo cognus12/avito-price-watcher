@@ -2,18 +2,20 @@ package avito
 
 import (
 	"apricescrapper/internal/handlers"
-	"apricescrapper/internal/scrapper"
+	"encoding/json"
 	"net/http"
-	"strconv"
 
 	"github.com/julienschmidt/httprouter"
 )
 
 type handler struct {
+	AvitoService Service
 }
 
-func New() handlers.Handler {
-	return &handler{}
+func NewHandler(avitoService Service) handlers.Handler {
+	return &handler{
+		AvitoService: avitoService,
+	}
 }
 
 func (h *handler) Register(r *httprouter.Router) {
@@ -25,28 +27,27 @@ func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request, ps httpro
 	category := r.URL.Query().Get("category")
 	slug := r.URL.Query().Get("slug")
 
-	const baseUrl = "https://www.avito.ru/"
+	params := urlParams{city, category, slug}
 
-	if city == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("No city provided"))
+	adInfo, err := h.AvitoService.GetAdInfo(params)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+
+		return
 	}
 
-	if category == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("No category provided"))
+	jsonBytes, err := json.Marshal(adInfo)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+
+		return
 	}
 
-	if slug == "" {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("No slug provided"))
-	}
-
-	url := baseUrl + city + "/" + category + "/" + slug
-
-	price := scrapper.GetPrice(url)
-
-	w.Write([]byte("city: " + city + ", category: " + category + ", slug: " + slug + ", price: " + strconv.FormatUint(price, 10)))
+	w.Write(jsonBytes)
 }
 
 /*
