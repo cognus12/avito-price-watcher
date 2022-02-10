@@ -25,7 +25,9 @@ func (a *app) Run() {
 	log.Println("Init router")
 	router := httprouter.New()
 
-	handler := avito.New()
+	avitoService := avito.NewService()
+	handler := avito.NewHandler(avitoService)
+
 	handler.Register(router)
 
 	start(router)
