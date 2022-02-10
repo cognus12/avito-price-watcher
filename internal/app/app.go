@@ -2,8 +2,8 @@ package app
 
 import (
 	"apricescrapper/internal/avito"
+	"apricescrapper/pkg/logger"
 	"errors"
-	"log"
 	"net"
 	"net/http"
 	"time"
@@ -22,21 +22,24 @@ func New() *app {
 }
 
 func (a *app) Run() {
-	log.Println("Init router")
+	logger := logger.New()
+
+	logger.Info("Init router")
 	router := httprouter.New()
 
 	avitoService := avito.NewService()
-	handler := avito.NewHandler(avitoService)
+	handler := avito.NewHandler(avitoService, logger)
 
 	handler.Register(router)
 
-	start(router)
+	start(router, logger)
 }
 
-func start(router http.Handler) {
+func start(router http.Handler, logger logger.Logger) {
 	listener, err := net.Listen("tcp", "localhost:3000")
+
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err.Error())
 	}
 
 	server := &http.Server{
@@ -45,14 +48,14 @@ func start(router http.Handler) {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	log.Println("App started")
+	logger.Info("App started")
 
 	if err := server.Serve(listener); err != nil {
 		switch {
 		case errors.Is(err, http.ErrServerClosed):
-			log.Println("server shutdown")
+			logger.Error("server shutdown")
 		default:
-			log.Println(err)
+			logger.Error(err.Error())
 		}
 	}
 }

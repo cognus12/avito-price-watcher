@@ -3,6 +3,7 @@ package avito
 import (
 	"apricescrapper/internal/handlers"
 	"apricescrapper/pkg/helpers"
+	"apricescrapper/pkg/logger"
 	"encoding/json"
 	"net/http"
 
@@ -11,11 +12,13 @@ import (
 
 type handler struct {
 	AvitoService Service
+	logger       logger.Logger
 }
 
-func NewHandler(avitoService Service) handlers.Handler {
+func NewHandler(avitoService Service, logger logger.Logger) handlers.Handler {
 	return &handler{
 		AvitoService: avitoService,
+		logger:       logger,
 	}
 }
 
@@ -33,9 +36,12 @@ func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request, ps httpro
 	adInfo, err := h.AvitoService.GetAdInfo(params)
 
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
+		msg := err.Error()
 
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(msg))
+
+		h.logger.Error(msg)
 		return
 	}
 
@@ -46,7 +52,12 @@ func (h *handler) responseJson(w http.ResponseWriter, s interface{}) {
 	jsonBytes, err := json.Marshal(s)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+
+		msg := err.Error()
+
+		h.logger.Error(msg)
+
+		http.Error(w, msg, http.StatusInternalServerError)
 		return
 	}
 
