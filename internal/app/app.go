@@ -2,8 +2,10 @@ package app
 
 import (
 	"apricescrapper/internal/avito"
+	"apricescrapper/internal/config"
 	"apricescrapper/pkg/logger"
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"time"
@@ -32,11 +34,13 @@ func (a *app) Run() {
 
 	handler.Register(router)
 
-	start(router, logger)
+	cfg := config.GetConfig(logger)
+
+	start(router, logger, cfg)
 }
 
-func start(router http.Handler, logger logger.Logger) {
-	listener, err := net.Listen("tcp", "localhost:3000")
+func start(router http.Handler, logger logger.Logger, config *config.Config) {
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", config.Host, config.Port))
 
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -48,7 +52,7 @@ func start(router http.Handler, logger logger.Logger) {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	logger.Info("App started")
+	logger.Info("App started on %s:%s", config.Host, config.Port)
 
 	if err := server.Serve(listener); err != nil {
 		switch {

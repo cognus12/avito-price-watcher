@@ -5,6 +5,14 @@ go 1.17
 require golang.org/x/net v0.0.0-20211216030914-fe4d6282115f
 
 require (
+	github.com/BurntSushi/toml v1.0.0 // indirect
+	github.com/ilyakaznacheev/cleanenv v1.2.6 // indirect
+	github.com/joho/godotenv v1.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	olympos.io/encoding/edn v0.0.0-20201019073823-d3554ca0b0a3 // indirect
+)
+
+require (
 	github.com/chromedp/cdproto v0.0.0-20220131204822-e6abebe7b8cd // indirect
 	github.com/chromedp/chromedp v0.7.6 // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect
