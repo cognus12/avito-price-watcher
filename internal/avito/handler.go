@@ -28,7 +28,7 @@ func (h *handler) Register(r *httprouter.Router) {
 
 func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	city := helpers.GetQueryParam(r, "city")
-	category := helpers.GetQueryParam(r, "city")
+	category := helpers.GetQueryParam(r, "category")
 	slug := helpers.GetQueryParam(r, "slug")
 
 	params := urlParams{city, category, slug}
