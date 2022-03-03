@@ -1,6 +1,7 @@
 package avito
 
 import (
+	"apricescrapper/internal/apperror"
 	"apricescrapper/internal/handlers"
 	"apricescrapper/pkg/helpers"
 	"apricescrapper/pkg/logger"
@@ -23,10 +24,10 @@ func NewHandler(avitoService Service, logger logger.Logger) handlers.Handler {
 }
 
 func (h *handler) Register(r *httprouter.Router) {
-	r.GET("/avito/parse", h.ParseHandler)
+	r.HandlerFunc(http.MethodGet, "/avito/parse", apperror.Middleware(h.ParseHandler))
 }
 
-func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request) error {
 	city := helpers.GetQueryParam(r, "city")
 	category := helpers.GetQueryParam(r, "category")
 	slug := helpers.GetQueryParam(r, "slug")
@@ -42,10 +43,11 @@ func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request, ps httpro
 		w.Write([]byte(msg))
 
 		h.logger.Error(msg)
-		return
+		return err
 	}
 
 	h.responseJson(w, adInfo)
+	return nil
 }
 
 func (h *handler) responseJson(w http.ResponseWriter, s interface{}) {
