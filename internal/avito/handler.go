@@ -37,12 +37,6 @@ func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request) error {
 	adInfo, err := h.AvitoService.GetAdInfo(params)
 
 	if err != nil {
-		msg := err.Error()
-
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(msg))
-
-		h.logger.Error(msg)
 		return err
 	}
 
@@ -50,19 +44,11 @@ func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h *handler) responseJson(w http.ResponseWriter, s interface{}) {
+func (h *handler) responseJson(w http.ResponseWriter, s interface{}) error {
 	jsonBytes, err := json.Marshal(s)
-
-	if err != nil {
-
-		msg := err.Error()
-
-		h.logger.Error(msg)
-
-		http.Error(w, msg, http.StatusInternalServerError)
-		return
-	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(jsonBytes)
+
+	return err
 }
