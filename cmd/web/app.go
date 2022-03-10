@@ -10,5 +10,4 @@ func main() {
 	app.Run()
 }
 
-// TODO improve logger
-// TODO shutdown func
+// TODO improve crawler
