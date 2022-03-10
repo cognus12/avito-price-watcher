@@ -28,7 +28,7 @@ func New() *app {
 }
 
 func (a *app) Run() {
-	logger := logger.New()
+	logger := logger.GetInstance()
 
 	logger.Info("Init router")
 	router := httprouter.New()

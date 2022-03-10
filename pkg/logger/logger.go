@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 )
 
 type Logger interface {
@@ -18,11 +19,29 @@ type logger struct {
 	infoLogger  *log.Logger
 }
 
-func New() *logger {
+var lock = &sync.Mutex{}
+
+var instance *logger
+
+func initialize() {
 	errorLogger := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
 	infoLogger := log.New(os.Stderr, "INFO\t", log.Ldate|log.Ltime)
 
-	return &logger{errorLogger, infoLogger}
+	instance = &logger{errorLogger, infoLogger}
+}
+
+func GetInstance() *logger {
+	if instance == nil {
+		lock.Lock()
+		defer lock.Unlock()
+
+		if instance == nil {
+			initialize()
+			return instance
+		}
+	}
+
+	return instance
 }
 
 func (l *logger) Info(msg string, v ...interface{}) {
