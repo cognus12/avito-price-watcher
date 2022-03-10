@@ -5,13 +5,11 @@ import (
 	"apricescrapper/internal/config"
 	"apricescrapper/internal/crawler"
 	"apricescrapper/pkg/logger"
+	"apricescrapper/pkg/shutdown"
 	"errors"
 	"fmt"
 	"net"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/julienschmidt/httprouter"
@@ -60,18 +58,10 @@ func start(router http.Handler, logger logger.Logger, c crawler.Crawler, config 
 
 	logger.Info("App started on %s:%s", config.Host, config.Port)
 
-	go func() {
-		signals := []os.Signal{syscall.SIGABRT, syscall.SIGQUIT, syscall.SIGHUP, os.Interrupt, syscall.SIGTERM}
-
-		sigc := make(chan os.Signal, 1)
-		signal.Notify(sigc, signals...)
-		sig := <-sigc
-
-		logger.Info("Caught signal %s. Shutting down...", sig)
-
-		c.Stop()
+	go shutdown.Gracefull(func() {
 		server.Close()
-	}()
+		c.Stop()
+	})
 
 	if err := server.Serve(listener); err != nil {
 		switch {
@@ -83,13 +73,3 @@ func start(router http.Handler, logger logger.Logger, c crawler.Crawler, config 
 	}
 
 }
-
-// func shutdown(s http.Server, c crawler.Crawler) {
-// 	signals := []os.Signal{syscall.SIGABRT, syscall.SIGQUIT, syscall.SIGHUP, os.Interrupt, syscall.SIGTERM}
-
-// 	sigc := make(chan os.Signal, 1)
-// 	signal.Notify(sigc, signals...)
-
-// 	c.Stop()
-// 	s.Close()
-// }
