@@ -1,12 +1,14 @@
 package avito
 
 import (
-	"apricescrapper/internal/scrapper"
+	"apricescrapper/internal/crawler"
 	"errors"
 	"strings"
 )
 
-type service struct{}
+type service struct {
+	crawler crawler.Crawler
+}
 
 type Service interface {
 	GetAdInfo(args urlParams) (adInfo, error)
@@ -24,8 +26,10 @@ type adInfo struct {
 	Price    uint64 `json:"price"`
 }
 
-func NewService() Service {
-	return &service{}
+func NewService(crawler crawler.Crawler) Service {
+	return &service{
+		crawler: crawler,
+	}
 }
 
 func (s *service) GetAdInfo(args urlParams) (adInfo, error) {
@@ -57,7 +61,15 @@ func (s *service) GetAdInfo(args urlParams) (adInfo, error) {
 
 	url := baseUrl + args.city + "/" + args.category + "/" + args.slug
 
-	price := scrapper.GetPrice(url)
+	price, err := s.crawler.GetPrice(url)
+
+	if err != nil {
+		return adInfo{
+			Price:    0,
+			City:     args.city,
+			Category: args.category,
+		}, err
+	}
 
 	return adInfo{
 		Price:    price,
