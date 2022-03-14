@@ -3,6 +3,7 @@ package avito
 import (
 	"apricescrapper/internal/crawler"
 	"errors"
+	"strconv"
 	"strings"
 )
 
@@ -35,6 +36,8 @@ func NewService(crawler crawler.Crawler) Service {
 func (s *service) GetAdInfo(args urlParams) (adInfo, error) {
 	const baseUrl = "https://www.avito.ru/"
 
+	failResult := adInfo{}
+
 	errorMap := make(map[string]string)
 
 	if args.city == "" {
@@ -56,24 +59,28 @@ func (s *service) GetAdInfo(args urlParams) (adInfo, error) {
 			errSlice = append(errSlice, value)
 		}
 
-		return adInfo{}, errors.New(strings.Join(errSlice, ", "))
+		return failResult, errors.New(strings.Join(errSlice, ", "))
 	}
 
 	url := baseUrl + args.city + "/" + args.category + "/" + args.slug
 
-	price, err := s.crawler.GetPrice(url)
+	priceStr, err := s.crawler.GetAttribute(url, ".js-item-price", "content")
 
 	if err != nil {
-		return adInfo{
-			Price:    0,
-			City:     args.city,
-			Category: args.category,
-		}, err
+		return failResult, err
 	}
 
-	return adInfo{
-		Price:    price,
+	price, err := strconv.ParseUint(priceStr, 10, 64)
+
+	if err != nil {
+		return failResult, err
+	}
+
+	successResul := adInfo{
 		City:     args.city,
 		Category: args.category,
-	}, nil
+		Price:    price,
+	}
+
+	return successResul, nil
 }
