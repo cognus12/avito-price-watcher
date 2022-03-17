@@ -29,11 +29,15 @@ func (a *app) Run() {
 	logger := logger.GetInstance()
 
 	logger.Info("Init router")
+
 	router := httprouter.New()
 
 	crawler := crawler.NewCrawler()
 
-	avitoService := avito.NewService(crawler)
+	store := avito.NewRepository()
+
+	avitoService := avito.NewService(crawler, store)
+
 	handler := avito.NewHandler(avitoService, logger)
 
 	handler.Register(router)

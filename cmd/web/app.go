@@ -9,5 +9,3 @@ func main() {
 
 	app.Run()
 }
-
-// TODO improve crawler

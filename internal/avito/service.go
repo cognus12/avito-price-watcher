@@ -9,10 +9,13 @@ import (
 
 type service struct {
 	crawler crawler.Crawler
+	store   Repository
 }
 
 type Service interface {
 	GetAdInfo(args urlParams) (adInfo, error)
+	GetUser(email string) (UserDTO, error)
+	Subscribe(email string) error
 }
 
 type urlParams struct {
@@ -27,9 +30,10 @@ type adInfo struct {
 	Price    uint64 `json:"price"`
 }
 
-func NewService(crawler crawler.Crawler) Service {
+func NewService(crawler crawler.Crawler, repository Repository) Service {
 	return &service{
 		crawler: crawler,
+		store:   repository,
 	}
 }
 
@@ -83,4 +87,20 @@ func (s *service) GetAdInfo(args urlParams) (adInfo, error) {
 	}
 
 	return successResul, nil
+}
+
+func (s *service) Subscribe(email string) error {
+	err := s.store.CreateUser(email)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *service) GetUser(email string) (UserDTO, error) {
+	u, err := s.store.GetUser(email)
+
+	return u, err
 }
