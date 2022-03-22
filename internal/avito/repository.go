@@ -1,14 +1,13 @@
 package avito
 
 import (
-	"apricescrapper/internal/sqlite"
 	"apricescrapper/pkg/logger"
 	"database/sql"
 )
 
 type Repository interface {
 	CreateUser(email string) error
-	CreateLink(url string)
+	CreateLink(url string) error
 	GetUser(email string) (UserDTO, error)
 }
 
@@ -22,8 +21,7 @@ const CREATE_USER = `
 	VALUES (?, ?)
 `
 
-func NewRepository() Repository {
-	db := sqlite.GetInstance()
+func NewRepository(db *sql.DB) Repository {
 	logger := logger.GetInstance()
 
 	return &repository{db: db, logger: logger}
@@ -67,6 +65,7 @@ func (r *repository) GetUser(email string) (UserDTO, error) {
 	return u, nil
 }
 
-func (r *repository) CreateLink(url string) {
-
+func (r *repository) CreateLink(url string) error {
+	//  TODO implement CreateLink
+	return nil
 }

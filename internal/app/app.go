@@ -4,6 +4,7 @@ import (
 	"apricescrapper/internal/avito"
 	"apricescrapper/internal/config"
 	"apricescrapper/internal/crawler"
+	"apricescrapper/internal/sqlite"
 	"apricescrapper/pkg/logger"
 	"apricescrapper/pkg/shutdown"
 	"errors"
@@ -34,7 +35,9 @@ func (a *app) Run() {
 
 	crawler := crawler.NewCrawler()
 
-	store := avito.NewRepository()
+	db := sqlite.New(schema)
+
+	store := avito.NewRepository(db)
 
 	avitoService := avito.NewService(crawler, store)
 
