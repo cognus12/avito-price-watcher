@@ -13,7 +13,6 @@ var instance *sql.DB
 var lock = &sync.Mutex{}
 
 func initialize() {
-
 	logger := logger.GetInstance()
 
 	db, err := sql.Open("sqlite3", "internal/sqlite/store.db")
@@ -36,13 +35,18 @@ func createTables(schema string) {
 }
 
 func New(schema string) *sql.DB {
-	logger := logger.GetInstance()
+	if instance == nil {
+		lock.Lock()
 
-	logger.Info("Init database")
+		defer lock.Unlock()
 
-	instance := GetInstance()
+		if instance == nil {
+			initialize()
+			createTables(schema)
 
-	createTables(schema)
+			return instance
+		}
+	}
 
 	return instance
 }
@@ -52,18 +56,4 @@ func Close() {
 		instance.Close()
 	}
 
-}
-
-func GetInstance() *sql.DB {
-	if instance == nil {
-		lock.Lock()
-		defer lock.Unlock()
-
-		if instance == nil {
-			initialize()
-			return instance
-		}
-	}
-
-	return instance
 }
