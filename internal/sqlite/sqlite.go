@@ -1,7 +1,6 @@
 package sqlite
 
 import (
-	"apricescrapper/pkg/logger"
 	"database/sql"
 	"sync"
 
@@ -12,48 +11,53 @@ var instance *sql.DB
 
 var lock = &sync.Mutex{}
 
-func initialize() {
-	logger := logger.GetInstance()
-
+func initialize() error {
 	db, err := sql.Open("sqlite3", "internal/sqlite/store.db")
 
 	if err != nil {
-		logger.Panic(err.Error())
+		return err
 	}
 
 	instance = db
+
+	return nil
 }
 
-func createTables(schema string) {
-	logger := logger.GetInstance()
+func createTables(schema string) error {
 	_, err := instance.Exec(schema)
 
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
+	return err
 
 }
 
-func New(schema string) *sql.DB {
+func New(schema string) (*sql.DB, error) {
 	if instance == nil {
 		lock.Lock()
 
 		defer lock.Unlock()
 
 		if instance == nil {
-			initialize()
-			createTables(schema)
+			err := initialize()
 
-			return instance
+			if err != nil {
+				return instance, err
+			}
+
+			err = createTables(schema)
+
+			return instance, err
 		}
 	}
 
-	return instance
+	return instance, nil
 }
 
-func Close() {
+func Close() error {
+	var err error
+
 	if instance != nil {
-		instance.Close()
+		err = instance.Close()
 	}
 
+	return err
 }

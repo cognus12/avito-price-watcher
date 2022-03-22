@@ -35,7 +35,11 @@ func (a *app) Run() {
 
 	crawler := crawler.NewCrawler()
 
-	db := sqlite.New(schema)
+	db, err := sqlite.New(schema)
+
+	if err != nil {
+		logger.Panic(err.Error())
+	}
 
 	store := avito.NewRepository(db)
 
