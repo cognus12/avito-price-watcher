@@ -12,12 +12,24 @@ var instance *sql.DB
 
 var lock = &sync.Mutex{}
 
-const CREATE_USERS_TABLE = `
-	CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT)
-`
+const CREATE_TABLES = `
+	CREATE TABLE IF NOT EXISTS users (
+		id INTEGER UNIQUE NOT NULL PRIMARY KEY AUTOINCREMENT,
+		email TEXT 
+	);
 
-const CREATE_LINKS_TABLE = `
-	CREATE TABLE IF NOT EXISTS links (id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, subscribers INTEGER FOREIGN KEY (userid) REFERENCES users(id))
+	CREATE TABLE IF NOT EXISTS links (
+		id INTEGER UNIQUE NOT NULL PRIMARY KEY AUTOINCREMENT, 
+		url TEXT 
+
+	);
+
+	CREATE TABLE IF NOT EXISTS links_users (
+		link_id INTEGER,
+		user_id INTEGER,
+		FOREIGN KEY (link_id) REFERENCES links(id),
+		FOREIGN KEY (user_id) REFERENCES users(id)
+	);
 `
 
 func initialize() {
@@ -25,6 +37,8 @@ func initialize() {
 	logger := logger.GetInstance()
 
 	db, err := sql.Open("sqlite3", "internal/sqlite/store.db")
+
+	logger.Info("Connected to database internal/sqlite/store.db")
 
 	if err != nil {
 		logger.Panic(err.Error())
@@ -37,13 +51,12 @@ func initialize() {
 
 func createTables() {
 	logger := logger.GetInstance()
-	statement, err := instance.Prepare(CREATE_USERS_TABLE)
+	_, err := instance.Exec(CREATE_TABLES)
 
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
 
-	statement.Exec()
 }
 
 func Close() {
