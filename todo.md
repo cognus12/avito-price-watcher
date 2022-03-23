@@ -2,8 +2,12 @@
 - [X] TODO add repository
 - [ ] TODO handle not found
 - [ ] TODO implement subscribe and unsubscribe
+- [ ] TOTO implement watching of subscribed avito pages
 - [ ] TODO refactor
 
 - [ ] TODO implement price watching
 - [ ] TODO implement email notification
 - [ ] TODO improve crawler
+- [ ] TODO (logger) make possible to pass error as arg
+- [ ] TOTO (app) refactor app initialization function
+- [ ] TODO add tests

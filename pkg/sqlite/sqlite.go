@@ -11,8 +11,8 @@ var instance *sql.DB
 
 var lock = &sync.Mutex{}
 
-func initialize() error {
-	db, err := sql.Open("sqlite3", "internal/sqlite/store.db")
+func initialize(path string) error {
+	db, err := sql.Open("sqlite3", path)
 
 	if err != nil {
 		return err
@@ -30,14 +30,14 @@ func createTables(schema string) error {
 
 }
 
-func New(schema string) (*sql.DB, error) {
+func New(schema string, path string) (*sql.DB, error) {
 	if instance == nil {
 		lock.Lock()
 
 		defer lock.Unlock()
 
 		if instance == nil {
-			err := initialize()
+			err := initialize(path)
 
 			if err != nil {
 				return instance, err

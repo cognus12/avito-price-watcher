@@ -4,9 +4,10 @@ import (
 	"apricescrapper/internal/avito"
 	"apricescrapper/internal/config"
 	"apricescrapper/internal/crawler"
-	"apricescrapper/internal/sqlite"
+
 	"apricescrapper/pkg/logger"
 	"apricescrapper/pkg/shutdown"
+	"apricescrapper/pkg/sqlite"
 	"errors"
 	"fmt"
 	"net"
@@ -28,6 +29,7 @@ func New() *app {
 
 func (a *app) Run() {
 	logger := logger.GetInstance()
+	cfg := config.GetConfig(logger)
 
 	logger.Info("Init router")
 
@@ -35,7 +37,9 @@ func (a *app) Run() {
 
 	crawler := crawler.NewCrawler()
 
-	db, err := sqlite.New(schema)
+	logger.Info("Connect to sqlite3, path: %v", cfg.DbPath)
+
+	db, err := sqlite.New(schema, cfg.DbPath)
 
 	if err != nil {
 		logger.Panic(err.Error())
@@ -48,8 +52,6 @@ func (a *app) Run() {
 	handler := avito.NewHandler(avitoService, logger)
 
 	handler.Register(router)
-
-	cfg := config.GetConfig(logger)
 
 	start(router, logger, crawler, cfg)
 }
