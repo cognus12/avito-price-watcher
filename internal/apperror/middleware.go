@@ -1,6 +1,7 @@
 package apperror
 
 import (
+	"apricescrapper/pkg/logger"
 	"errors"
 	"net/http"
 )
@@ -20,6 +21,10 @@ func Middleware(h appHandler) http.HandlerFunc {
 }
 
 func proccessError(e error, w http.ResponseWriter) {
+	logger := logger.GetInstance()
+
+	logger.Error(e.Error())
+
 	var appErr *AppError
 
 	if errors.As(e, &appErr) {
@@ -35,7 +40,8 @@ func proccessError(e error, w http.ResponseWriter) {
 		return
 	}
 
-	w.WriteHeader(http.StatusTeapot)
+	w.WriteHeader(http.StatusInternalServerError)
 	w.Write(InternalServerError.Marshal())
 
+	return
 }

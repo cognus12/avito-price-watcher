@@ -8,8 +8,9 @@ import (
 )
 
 type Config struct {
-	Host string `env:"HOST" env-default:"localhost"`
-	Port string `env:"PORT" env-default:"3000"`
+	Host   string `env:"HOST" env-default:"localhost"`
+	Port   string `env:"PORT" env-default:"3000"`
+	DbPath string `env:"DB_PATH"`
 }
 
 var instance *Config
