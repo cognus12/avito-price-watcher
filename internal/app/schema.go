@@ -12,7 +12,7 @@ const schema = `
 
 	);
 
-	CREATE TABLE IF NOT EXISTS links_users (
+	CREATE TABLE IF NOT EXISTS subscriptions (
 		link_id INTEGER,
 		user_id INTEGER,
 		FOREIGN KEY (link_id) REFERENCES links(id),
