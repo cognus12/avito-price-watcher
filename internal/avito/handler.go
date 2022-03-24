@@ -31,7 +31,7 @@ func NewHandler(avitoService Service, logger logger.Logger) handlers.Handler {
 func (h *handler) Register(r *httprouter.Router) {
 	r.HandlerFunc(http.MethodGet, "/api/info", apperror.Middleware(h.ParseHandler))
 	r.HandlerFunc(http.MethodPost, "/api/subscribe", apperror.Middleware(h.Subscribe))
-	r.HandlerFunc(http.MethodPost, "/api/unsubscribe", h.Unsubscribe)
+	r.HandlerFunc(http.MethodPost, "/api/unsubscribe", apperror.Middleware(h.Unsubscribe))
 
 }
 
@@ -79,7 +79,7 @@ func (h *handler) Subscribe(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 
-func (h *handler) Unsubscribe(w http.ResponseWriter, r *http.Request) {
+func (h *handler) Unsubscribe(w http.ResponseWriter, r *http.Request) error {
 	h.logger.Info("Call unsubscribe method")
 
 	defer r.Body.Close()
@@ -89,14 +89,21 @@ func (h *handler) Unsubscribe(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&dto)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return err
+	}
+
+	err = h.AvitoService.Unsubscribe(dto.Url, dto.Email)
+
+	if err != nil {
+		return err
 	}
 
 	h.logger.Info("Call unsubscribe method with %+v", dto)
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Call unsubscribe"))
+
+	return nil
 }
 
 func (h *handler) responseJson(w http.ResponseWriter, s interface{}) error {

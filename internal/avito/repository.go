@@ -7,6 +7,7 @@ import (
 
 type Repository interface {
 	CreateSubscibtion(url string, email string) error
+	DeleteSubscibtion(url string, email string) error
 }
 
 type repository struct {
@@ -32,9 +33,15 @@ func (r *repository) CreateSubscibtion(url string, email string) error {
 		INSERT OR IGNORE INTO subscriptions VALUES(
 			(SELECT id FROM links WHERE url = ?), 
 			(SELECT id FROM users WHERE email = ?)
-	);
+		);
 	`
 	_, err := r.db.Exec(query, url, email, url, email)
 
 	return err
+}
+
+func (r *repository) DeleteSubscibtion(url string, email string) error {
+	// TODO implement
+
+	return nil
 }
