@@ -14,8 +14,7 @@ type service struct {
 
 type Service interface {
 	GetAdInfo(args urlParams) (adInfo, error)
-	GetUser(email string) (UserDTO, error)
-	Subscribe(email string) error
+	Subscribe(url string, email string) error
 }
 
 type urlParams struct {
@@ -89,18 +88,12 @@ func (s *service) GetAdInfo(args urlParams) (adInfo, error) {
 	return successResul, nil
 }
 
-func (s *service) Subscribe(email string) error {
-	err := s.store.CreateUser(email)
+func (s *service) Subscribe(url string, email string) error {
+	err := s.store.CreateSubscibtion(url, email)
 
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func (s *service) GetUser(email string) (UserDTO, error) {
-	u, err := s.store.GetUser(email)
-
-	return u, err
 }

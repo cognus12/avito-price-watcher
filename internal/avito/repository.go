@@ -6,9 +6,7 @@ import (
 )
 
 type Repository interface {
-	CreateUser(email string) error
-	CreateLink(url string) error
-	GetUser(email string) (UserDTO, error)
+	CreateSubscibtion(url string, email string) error
 }
 
 type repository struct {
@@ -27,45 +25,16 @@ func NewRepository(db *sql.DB) Repository {
 	return &repository{db: db, logger: logger}
 }
 
-func (r *repository) CreateUser(email string) error {
+func (r *repository) CreateSubscibtion(url string, email string) error {
+	query := `
+		INSERT OR IGNORE INTO links (url) VALUES (?);
+		INSERT OR IGNORE INTO users (email) VALUES (?);
+		INSERT OR IGNORE INTO subscriptions VALUES(
+			(SELECT id FROM links WHERE url = ?), 
+			(SELECT id FROM users WHERE email = ?)
+	);
+	`
+	_, err := r.db.Exec(query, url, email, url, email)
 
-	statement, err := r.db.Prepare(CREATE_USER)
-
-	defer statement.Close()
-
-	r.logger.Info("Call CreateUser method")
-
-	if err != nil {
-		r.logger.Error(err.Error())
-
-		return err
-	}
-
-	statement.Exec(nil, email)
-
-	return nil
-}
-
-func (r *repository) GetUser(email string) (UserDTO, error) {
-
-	row := r.db.QueryRow("SELECT * FROM users WHERE email = ?", email)
-
-	// defer row.Close()
-
-	var u UserDTO
-
-	err := row.Scan(&u.Id, &u.Email)
-
-	if err != nil {
-		return u, err
-	}
-
-	r.logger.Info("Get user %+v", u)
-
-	return u, nil
-}
-
-func (r *repository) CreateLink(url string) error {
-	//  TODO implement CreateLink
-	return nil
+	return err
 }
