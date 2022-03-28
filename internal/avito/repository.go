@@ -43,5 +43,30 @@ func (r *repository) CreateSubscibtion(url string, email string) error {
 func (r *repository) DeleteSubscibtion(url string, email string) error {
 	// TODO implement
 
-	return nil
+	// query := `
+	// 	DELETE FROM subscriptions VALUES(
+	// 		(SELECT id FROM links WHERE url = ?),
+	// 		(SELECT id FROM users WHERE email = ?)
+	// 	);
+	// `
+	query := `
+		DELETE FROM subscriptions 
+		WHERE link_id = (SELECT id FROM links WHERE url = ?) AND user_id = (SELECT id FROM users WHERE email = ?);
+		
+		DELETE FROM users WHERE email = ? AND email NOT IN (
+			SELECT user_id FROM subscriptions WHERE (
+				SELECT user_id = (SELECT id FROM users WHERE email = ?)
+			)
+		);
+
+		DELETE FROM links WHERE url = ? AND url NOT IN (
+			SELECT link_id FROM subscriptions WHERE (
+				SELECT link_id = (SELECT id FROM links WHERE url = ?)
+			)
+		);
+	`
+
+	_, err := r.db.Exec(query, url, email, email, email, url, url)
+
+	return err
 }

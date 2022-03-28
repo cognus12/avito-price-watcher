@@ -1,6 +1,8 @@
 package app
 
 const schema = `
+	PRAGMA foreign_keys=on;
+	
 	CREATE TABLE IF NOT EXISTS users (
 		id INTEGER UNIQUE NOT NULL PRIMARY KEY AUTOINCREMENT,
 		email TEXT UNIQUE
