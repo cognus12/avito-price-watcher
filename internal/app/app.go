@@ -35,7 +35,7 @@ func (a *app) Run() {
 
 	router := httprouter.New()
 
-	crawler := crawler.NewCrawler()
+	crawler := crawler.Instance()
 
 	logger.Info("Connect to sqlite3, path: %v", cfg.DbPath)
 
@@ -73,7 +73,7 @@ func start(router http.Handler, logger logger.Logger, c crawler.Crawler, config 
 
 	go shutdown.Gracefull(func() {
 		server.Close()
-		c.Stop()
+		c.Close()
 	})
 
 	if err := server.Serve(listener); err != nil {
