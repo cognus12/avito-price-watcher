@@ -51,22 +51,14 @@ func (r *repository) DeleteSubscibtion(url string, email string) error {
 	// `
 	query := `
 		DELETE FROM subscriptions 
-		WHERE link_id = (SELECT id FROM links WHERE url = ?) AND user_id = (SELECT id FROM users WHERE email = ?);
-		
-		DELETE FROM users WHERE email = ? AND email NOT IN (
-			SELECT user_id FROM subscriptions WHERE (
-				SELECT user_id = (SELECT id FROM users WHERE email = ?)
-			)
-		);
-
-		DELETE FROM links WHERE url = ? AND url NOT IN (
-			SELECT link_id FROM subscriptions WHERE (
-				SELECT link_id = (SELECT id FROM links WHERE url = ?)
-			)
-		);
+		WHERE EXISTS (SELECT id FROM links WHERE url = ?) AND user_id = (SELECT id FROM users WHERE email = ?);
 	`
 
-	_, err := r.db.Exec(query, url, email, email, email, url, url)
+	res, err := r.db.Exec(query, url, email, email, email, url, url)
+
+	rows, _ := res.RowsAffected()
+
+	r.logger.Info("Rows affected: %v", rows)
 
 	return err
 }
