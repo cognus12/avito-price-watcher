@@ -7,7 +7,14 @@
 
 - [ ] TODO implement price watching
 - [ ] TODO implement email notification
-- [ ] TODO improve crawler
+- [x] TODO improve crawler - try other lib or improve running existing
+- [ ] TODO crawler - add logger
+- [ ] TODO crawler - make cofigurable
 - [ ] TODO (logger) make possible to pass error as arg
 - [ ] TOTO (app) refactor app initialization function
 - [ ] TODO add tests
+
+
+Userfull links
+
+Settings for headless chrome https://chromium.googlesource.com/chromium/blink/+/master/Source/core/frame/Settings.in
