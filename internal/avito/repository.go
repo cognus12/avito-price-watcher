@@ -39,7 +39,7 @@ func (r *repository) CreateSubscibtion(url string, email string) error {
 	res, err := r.db.Exec(query, url, email, url, email)
 
 	if err != nil {
-		r.logger.Error(err.Error())
+		r.logger.Errorf(err)
 	}
 
 	created, err := res.RowsAffected()

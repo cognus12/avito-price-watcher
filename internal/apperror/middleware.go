@@ -23,7 +23,7 @@ func Middleware(h appHandler) http.HandlerFunc {
 func proccessError(e error, w http.ResponseWriter) {
 	logger := logger.GetInstance()
 
-	logger.Error(e.Error())
+	logger.Errorf(e)
 
 	var appErr *AppError
 

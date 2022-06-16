@@ -44,6 +44,8 @@ func (s *service) GetAdInfo(args urlParams) (adInfo, error) {
 
 	errorMap := make(map[string]string)
 
+	// TODO add separate validate args private method
+
 	if args.city == "" {
 		errorMap["city"] = "no city provided"
 	}
