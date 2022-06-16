@@ -39,7 +39,7 @@ func (r *repository) CreateSubscibtion(url string, email string) error {
 	res, err := r.db.Exec(query, url, email, url, email)
 
 	if err != nil {
-		r.logger.Errorf(err)
+		return err
 	}
 
 	created, err := res.RowsAffected()
@@ -65,9 +65,17 @@ func (r *repository) DeleteSubscibtion(url string, email string) error {
 
 	res, err := r.db.Exec(query, url, email, email, email, url, url)
 
-	rows, _ := res.RowsAffected()
+	deleted, err := res.RowsAffected()
 
-	r.logger.Info("Rows affected: %v", rows)
+	if err != nil {
+		return err
+	}
+
+	if deleted == 0 {
+		return apperror.ErrNotFound
+	}
+
+	r.logger.Info("Deleted subscribtion, url: %v, email: %v", url, email)
 
 	return err
 }
