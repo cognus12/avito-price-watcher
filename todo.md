@@ -18,3 +18,4 @@
 Userfull links
 
 Settings for headless chrome https://chromium.googlesource.com/chromium/blink/+/master/Source/core/frame/Settings.in
+Using PostgreSQL with Go https://www.calhoun.io/using-postgresql-with-go/
