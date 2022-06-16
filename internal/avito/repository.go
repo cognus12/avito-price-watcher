@@ -1,6 +1,7 @@
 package avito
 
 import (
+	"apricescrapper/internal/apperror"
 	"apricescrapper/pkg/logger"
 	"database/sql"
 )
@@ -35,20 +36,28 @@ func (r *repository) CreateSubscibtion(url string, email string) error {
 			(SELECT id FROM users WHERE email = ?)
 		);
 	`
-	_, err := r.db.Exec(query, url, email, url, email)
+	res, err := r.db.Exec(query, url, email, url, email)
+
+	if err != nil {
+		r.logger.Error(err.Error())
+	}
+
+	created, err := res.RowsAffected()
+
+	if err != nil {
+		return err
+	}
+
+	if created == 0 {
+		return apperror.ErrAlreadyExists
+	}
+
+	r.logger.Info("Created subscribtion, url: %v, email: %v", url, email)
 
 	return err
 }
 
 func (r *repository) DeleteSubscibtion(url string, email string) error {
-	// TODO implement
-
-	// query := `
-	// 	DELETE FROM subscriptions VALUES(
-	// 		(SELECT id FROM links WHERE url = ?),
-	// 		(SELECT id FROM users WHERE email = ?)
-	// 	);
-	// `
 	query := `
 		DELETE FROM subscriptions 
 		WHERE EXISTS (SELECT id FROM links WHERE url = ?) AND user_id = (SELECT id FROM users WHERE email = ?);

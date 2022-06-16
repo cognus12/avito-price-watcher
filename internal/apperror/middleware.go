@@ -34,6 +34,12 @@ func proccessError(e error, w http.ResponseWriter) {
 			return
 		}
 
+		if errors.Is(e, ErrAlreadyExists) {
+			w.WriteHeader(http.StatusConflict)
+			w.Write(ErrAlreadyExists.Marshal())
+			return
+		}
+
 		e = e.(*AppError)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(appErr.Marshal())

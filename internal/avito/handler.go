@@ -65,15 +65,13 @@ func (h *handler) Subscribe(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	h.logger.Info("Call subscribe method with %+v", dto)
-
 	err = h.AvitoService.Subscribe(dto.Url, dto.Email)
 
 	if err != nil {
 		return err
 	}
 
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Call subscribe"))
 
 	return nil

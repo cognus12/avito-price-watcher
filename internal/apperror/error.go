@@ -13,6 +13,7 @@ type AppError struct {
 
 var (
 	ErrNotFound         = NewAppError(nil, "not found", http.StatusNotFound)
+	ErrAlreadyExists    = NewAppError(nil, "already exists", http.StatusConflict)
 	InternalServerError = NewAppError(nil, "internal server error", http.StatusInternalServerError)
 )
 
