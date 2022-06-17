@@ -83,7 +83,7 @@ func (r *repository) DeleteSubscibtion(url string, email string) error {
 	if deleted == 0 {
 		notFound := apperror.ErrNotFound
 
-		notFound.Message = fmt.Sprintf("url %v is not subscribed for url %v", url, email)
+		notFound.Message = fmt.Sprintf("email %v is not subscribed for url %v", email, url)
 
 		return apperror.ErrNotFound
 	}
