@@ -40,6 +40,12 @@ func proccessError(e error, w http.ResponseWriter) {
 			return
 		}
 
+		if errors.Is(e, UnprocessableEntity) {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write(UnprocessableEntity.Marshal())
+			return
+		}
+
 		e = e.(*AppError)
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write(appErr.Marshal())

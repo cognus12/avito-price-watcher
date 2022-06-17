@@ -16,11 +16,6 @@ type handler struct {
 	logger       logger.Logger
 }
 
-type SubscribtionDTO struct {
-	Url   string
-	Email string
-}
-
 func NewHandler(avitoService Service, logger logger.Logger) handlers.Handler {
 	return &handler{
 		AvitoService: avitoService,
@@ -65,6 +60,12 @@ func (h *handler) Subscribe(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
+	err = dto.Validate()
+
+	if err != nil {
+		return err
+	}
+
 	err = h.AvitoService.Subscribe(dto.Url, dto.Email)
 
 	if err != nil {
@@ -85,6 +86,12 @@ func (h *handler) Unsubscribe(w http.ResponseWriter, r *http.Request) error {
 	var dto SubscribtionDTO
 
 	err := json.NewDecoder(r.Body).Decode(&dto)
+
+	if err != nil {
+		return err
+	}
+
+	err = dto.Validate()
 
 	if err != nil {
 		return err

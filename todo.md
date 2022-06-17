@@ -1,16 +1,15 @@
 - [X] TODO add sqlite
 - [X] TODO add repository
-- [ ] TODO handle not found
-- [ ] TODO implement subscribe and unsubscribe
+- [x] TODO handle not found
+- [x] TODO implement subscribe and unsubscribe
 - [ ] TOTO implement watching of subscribed avito pages
+- [ ] TODO implement email notification
 - [ ] TODO refactor
 
-- [ ] TODO implement price watching
-- [ ] TODO implement email notification
 - [x] TODO improve crawler - try other lib or improve running existing
 - [ ] TODO crawler - add logger
 - [ ] TODO crawler - make cofigurable
-- [ ] TODO (logger) make possible to pass error as arg
+- [x] TODO (logger) make possible to pass error as arg
 - [ ] TOTO (app) refactor app initialization function
 - [ ] TODO add tests
 
