@@ -4,6 +4,7 @@ import (
 	"apricescrapper/internal/apperror"
 	"apricescrapper/pkg/logger"
 	"database/sql"
+	"fmt"
 )
 
 type Repository interface {
@@ -49,7 +50,11 @@ func (r *repository) CreateSubscibtion(url string, email string) error {
 	}
 
 	if created == 0 {
-		return apperror.ErrAlreadyExists
+		alreadyExists := apperror.ErrAlreadyExists
+
+		alreadyExists.Message = fmt.Sprintf("Email %v is already subscribed for url %v", email, url)
+
+		return alreadyExists
 	}
 
 	r.logger.Info("Created subscribtion, url: %v, email: %v", url, email)
@@ -65,6 +70,10 @@ func (r *repository) DeleteSubscibtion(url string, email string) error {
 
 	res, err := r.db.Exec(query, url, email, email, email, url, url)
 
+	if err != nil {
+		return err
+	}
+
 	deleted, err := res.RowsAffected()
 
 	if err != nil {
@@ -72,6 +81,10 @@ func (r *repository) DeleteSubscibtion(url string, email string) error {
 	}
 
 	if deleted == 0 {
+		notFound := apperror.ErrNotFound
+
+		notFound.Message = fmt.Sprintf("url %v is not subscribed for url %v", url, email)
+
 		return apperror.ErrNotFound
 	}
 
