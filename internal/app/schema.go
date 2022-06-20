@@ -18,7 +18,14 @@ const schema = `
 		link_id INTEGER,
 		user_id INTEGER,
 		FOREIGN KEY (link_id) REFERENCES links(id),
-		FOREIGN KEY (user_id) REFERENCES users(id)	
+		FOREIGN KEY (user_id) REFERENCES users(id),
 		PRIMARY KEY (link_id, user_id)
+	);
+
+	CREATE TABLE IF NOT EXISTS ads (
+		id INTEGER UNIQUE NOT NULL PRIMARY KEY AUTOINCREMENT,
+		link_id INTEGER,
+		price INTEGER NOT NULL,
+		FOREIGN KEY (link_id) REFERENCES links(id)
 	);
 `

@@ -1,4 +1,4 @@
-package avito
+package subscription
 
 import (
 	"apricescrapper/internal/apperror"
@@ -12,32 +12,27 @@ import (
 )
 
 type handler struct {
-	AvitoService Service
-	logger       logger.Logger
+	Service Service
+	logger  logger.Logger
 }
 
-func NewHandler(avitoService Service, logger logger.Logger) handlers.Handler {
+func NewHandler(service Service, logger logger.Logger) handlers.Handler {
 	return &handler{
-		AvitoService: avitoService,
-		logger:       logger,
+		Service: service,
+		logger:  logger,
 	}
 }
 
 func (h *handler) Register(r *httprouter.Router) {
-	r.HandlerFunc(http.MethodGet, "/api/info", apperror.Middleware(h.ParseHandler))
+	r.HandlerFunc(http.MethodGet, "/api/ad-info", apperror.Middleware(h.AdInfo))
 	r.HandlerFunc(http.MethodPost, "/api/subscribe", apperror.Middleware(h.Subscribe))
 	r.HandlerFunc(http.MethodPost, "/api/unsubscribe", apperror.Middleware(h.Unsubscribe))
-
 }
 
-func (h *handler) ParseHandler(w http.ResponseWriter, r *http.Request) error {
-	city := helpers.GetQueryParam(r, "city")
-	category := helpers.GetQueryParam(r, "category")
-	slug := helpers.GetQueryParam(r, "slug")
+func (h *handler) AdInfo(w http.ResponseWriter, r *http.Request) error {
+	url := helpers.GetQueryParam(r, "url")
 
-	params := urlParams{city, category, slug}
-
-	adInfo, err := h.AvitoService.GetAdInfo(params)
+	adInfo, err := h.Service.GetAdInfo(url)
 
 	if err != nil {
 		return err
@@ -66,7 +61,7 @@ func (h *handler) Subscribe(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	err = h.AvitoService.Subscribe(dto.Url, dto.Email)
+	err = h.Service.Subscribe(dto.Url, dto.Email)
 
 	if err != nil {
 		return err
@@ -97,7 +92,7 @@ func (h *handler) Unsubscribe(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	err = h.AvitoService.Unsubscribe(dto.Url, dto.Email)
+	err = h.Service.Unsubscribe(dto.Url, dto.Email)
 
 	if err != nil {
 		return err
