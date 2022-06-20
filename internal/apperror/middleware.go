@@ -23,7 +23,7 @@ func Middleware(h appHandler) http.HandlerFunc {
 func proccessError(e error, w http.ResponseWriter) {
 	logger := logger.GetInstance()
 
-	logger.Error(e.Error())
+	logger.Errorf(e)
 
 	var appErr *AppError
 
@@ -31,6 +31,18 @@ func proccessError(e error, w http.ResponseWriter) {
 		if errors.Is(e, ErrNotFound) {
 			w.WriteHeader(http.StatusNotFound)
 			w.Write(ErrNotFound.Marshal())
+			return
+		}
+
+		if errors.Is(e, ErrAlreadyExists) {
+			w.WriteHeader(http.StatusConflict)
+			w.Write(ErrAlreadyExists.Marshal())
+			return
+		}
+
+		if errors.Is(e, UnprocessableEntity) {
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			w.Write(UnprocessableEntity.Marshal())
 			return
 		}
 

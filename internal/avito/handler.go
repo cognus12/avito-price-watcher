@@ -16,11 +16,6 @@ type handler struct {
 	logger       logger.Logger
 }
 
-type SubscribtionDTO struct {
-	Url   string
-	Email string
-}
-
 func NewHandler(avitoService Service, logger logger.Logger) handlers.Handler {
 	return &handler{
 		AvitoService: avitoService,
@@ -31,8 +26,7 @@ func NewHandler(avitoService Service, logger logger.Logger) handlers.Handler {
 func (h *handler) Register(r *httprouter.Router) {
 	r.HandlerFunc(http.MethodGet, "/api/info", apperror.Middleware(h.ParseHandler))
 	r.HandlerFunc(http.MethodPost, "/api/subscribe", apperror.Middleware(h.Subscribe))
-	r.HandlerFunc(http.MethodPost, "/api/unsubscribe", h.Unsubscribe)
-	r.HandlerFunc(http.MethodGet, "/api/get-user", apperror.Middleware(h.GetUser))
+	r.HandlerFunc(http.MethodPost, "/api/unsubscribe", apperror.Middleware(h.Unsubscribe))
 
 }
 
@@ -66,17 +60,25 @@ func (h *handler) Subscribe(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	h.logger.Info("Call subscribe method with %+v", dto)
+	err = dto.Validate()
 
-	h.AvitoService.Subscribe(dto.Email)
+	if err != nil {
+		return err
+	}
 
-	w.WriteHeader(http.StatusOK)
+	err = h.AvitoService.Subscribe(dto.Url, dto.Email)
+
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte("Call subscribe"))
 
 	return nil
 }
 
-func (h *handler) Unsubscribe(w http.ResponseWriter, r *http.Request) {
+func (h *handler) Unsubscribe(w http.ResponseWriter, r *http.Request) error {
 	h.logger.Info("Call unsubscribe method")
 
 	defer r.Body.Close()
@@ -86,30 +88,25 @@ func (h *handler) Unsubscribe(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&dto)
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return err
+	}
+
+	err = dto.Validate()
+
+	if err != nil {
+		return err
+	}
+
+	err = h.AvitoService.Unsubscribe(dto.Url, dto.Email)
+
+	if err != nil {
+		return err
 	}
 
 	h.logger.Info("Call unsubscribe method with %+v", dto)
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Call unsubscribe"))
-}
-
-func (h *handler) GetUser(w http.ResponseWriter, r *http.Request) error {
-	email := helpers.GetQueryParam(r, "email")
-
-	h.logger.Info("Call GetUser method, request user with email: %v", email)
-
-	u, err := h.AvitoService.GetUser(email)
-
-	if err != nil {
-		return err
-	}
-
-	w.WriteHeader(http.StatusOK)
-
-	h.responseJson(w, u)
 
 	return nil
 }

@@ -14,8 +14,8 @@ type service struct {
 
 type Service interface {
 	GetAdInfo(args urlParams) (adInfo, error)
-	GetUser(email string) (UserDTO, error)
-	Subscribe(email string) error
+	Subscribe(url string, email string) error
+	Unsubscribe(url string, email string) error
 }
 
 type urlParams struct {
@@ -43,6 +43,8 @@ func (s *service) GetAdInfo(args urlParams) (adInfo, error) {
 	failResult := adInfo{}
 
 	errorMap := make(map[string]string)
+
+	// TODO add separate validate args private method
 
 	if args.city == "" {
 		errorMap["city"] = "no city provided"
@@ -89,8 +91,8 @@ func (s *service) GetAdInfo(args urlParams) (adInfo, error) {
 	return successResul, nil
 }
 
-func (s *service) Subscribe(email string) error {
-	err := s.store.CreateUser(email)
+func (s *service) Subscribe(url, email string) error {
+	err := s.store.CreateSubscibtion(url, email)
 
 	if err != nil {
 		return err
@@ -99,8 +101,12 @@ func (s *service) Subscribe(email string) error {
 	return nil
 }
 
-func (s *service) GetUser(email string) (UserDTO, error) {
-	u, err := s.store.GetUser(email)
+func (s *service) Unsubscribe(url, email string) error {
+	err := s.store.DeleteSubscibtion(url, email)
 
-	return u, err
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

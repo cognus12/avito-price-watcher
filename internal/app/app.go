@@ -81,7 +81,7 @@ func start(router http.Handler, logger logger.Logger, c crawler.Crawler, config 
 		case errors.Is(err, http.ErrServerClosed):
 			logger.Error("server shutdown")
 		default:
-			logger.Error(err.Error())
+			logger.Errorf(err)
 		}
 	}
 
