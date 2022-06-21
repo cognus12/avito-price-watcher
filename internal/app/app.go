@@ -1,6 +1,7 @@
 package app
 
 import (
+	"apricescrapper/internal/advt"
 	"apricescrapper/internal/config"
 	"apricescrapper/internal/crawler"
 	"apricescrapper/internal/subscription"
@@ -46,11 +47,14 @@ func (a *app) Run() {
 
 	subscriptionRepository := subscription.NewRepository(db)
 
-	subscriptionService := subscription.NewService(crawler, subscriptionRepository)
+	subscriptionService := subscription.NewService(subscriptionRepository)
+	advtService := advt.NewService(crawler)
 
-	handler := subscription.NewHandler(subscriptionService, logger)
+	subscriptionHandler := subscription.NewHandler(subscriptionService, logger)
+	advtHandler := advt.NewHandler(advtService, logger)
 
-	handler.Register(router)
+	subscriptionHandler.Register(router)
+	advtHandler.Register(router)
 
 	start(router, logger, crawler, cfg)
 }
