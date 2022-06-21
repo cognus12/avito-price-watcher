@@ -1,4 +1,4 @@
-package avito
+package subscription
 
 import "apricescrapper/internal/apperror"
 

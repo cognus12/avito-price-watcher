@@ -18,7 +18,6 @@ var once sync.Once
 
 func GetConfig(logger logger.Logger) *Config {
 	once.Do(func() {
-
 		instance = &Config{}
 
 		if err := cleanenv.ReadConfig(".env", instance); err != nil {

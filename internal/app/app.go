@@ -1,10 +1,9 @@
 package app
 
 import (
-	"apricescrapper/internal/avito"
 	"apricescrapper/internal/config"
 	"apricescrapper/internal/crawler"
-
+	"apricescrapper/internal/subscription"
 	"apricescrapper/pkg/logger"
 	"apricescrapper/pkg/shutdown"
 	"apricescrapper/pkg/sqlite"
@@ -45,11 +44,11 @@ func (a *app) Run() {
 		logger.Panic(err.Error())
 	}
 
-	store := avito.NewRepository(db)
+	subscriptionRepository := subscription.NewRepository(db)
 
-	avitoService := avito.NewService(crawler, store)
+	subscriptionService := subscription.NewService(crawler, subscriptionRepository)
 
-	handler := avito.NewHandler(avitoService, logger)
+	handler := subscription.NewHandler(subscriptionService, logger)
 
 	handler.Register(router)
 

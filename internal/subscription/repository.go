@@ -1,4 +1,4 @@
-package avito
+package subscription
 
 import (
 	"apricescrapper/internal/apperror"
@@ -16,11 +16,6 @@ type repository struct {
 	db     *sql.DB
 	logger logger.Logger
 }
-
-const CREATE_USER = `
-	INSERT INTO users (id, email) 
-	VALUES (?, ?)
-`
 
 func NewRepository(db *sql.DB) Repository {
 	logger := logger.GetInstance()
