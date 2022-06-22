@@ -3,6 +3,7 @@ package watcher
 import (
 	"apricescrapper/internal/advt"
 	"apricescrapper/pkg/logger"
+	"apricescrapper/pkg/timer"
 )
 
 type watcher struct {
@@ -36,7 +37,7 @@ func (w *watcher) Stop() {
 }
 
 func (w *watcher) observ() {
-	setInterval(func() {
+	timer.SetInterval(func() {
 		w.logger.Info("Check price of ad URL: %v", w.Url)
 
 		ad, err := w.service.GetAdInfo(w.Url)

@@ -1,11 +1,10 @@
-package watcher
+package timer
 
-import (
-	"apricescrapper/pkg/logger"
-	"time"
-)
+import "time"
 
-func setInterval(someFunc func(), milliseconds int, async bool) chan bool {
+// https://www.jameslmilner.com/post/set-timeout-interval-go/
+
+func SetInterval(someFunc func(), milliseconds int, async bool) chan bool {
 
 	// How often to fire the passed in function
 	// in milliseconds
@@ -43,12 +42,11 @@ func setInterval(someFunc func(), milliseconds int, async bool) chan bool {
 	return clear
 }
 
-func Checker(url string) {
+func setTimeout(someFunc func(), milliseconds int) {
 
-	logger := logger.GetInstance()
+	timeout := time.Duration(milliseconds) * time.Millisecond
 
-	setInterval(func() {
-		logger.Info("Checking price from %v", url)
-	}, 2000, true)
+	// This spawns a goroutine and therefore does not block
+	time.AfterFunc(timeout, someFunc)
 
 }
