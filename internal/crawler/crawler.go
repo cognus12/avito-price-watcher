@@ -21,6 +21,8 @@ type Crawler interface {
 
 var lock = &sync.Mutex{}
 
+var once sync.Once
+
 var instance *crawler
 
 func initialize() {
@@ -44,15 +46,19 @@ func initialize() {
 }
 
 func Instance() *crawler {
-	if instance == nil {
-		lock.Lock()
-		defer lock.Unlock()
+	// if instance == nil {
+	// 	lock.Lock()
+	// 	defer lock.Unlock()
 
-		if instance == nil {
-			initialize()
-			return instance
-		}
-	}
+	// 	if instance == nil {
+	// 		initialize()
+	// 		return instance
+	// 	}
+	// }
+
+	once.Do(func() {
+		initialize()
+	})
 
 	return instance
 }

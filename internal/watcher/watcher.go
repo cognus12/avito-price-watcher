@@ -51,8 +51,6 @@ func (w *watcher) RemoveSubscriber(email string) {
 
 func (w *watcher) observ() {
 	timer.SetInterval(func() {
-		w.logger.Info("Check price of ad URL: %v", w.Url)
-
 		ad, err := w.service.GetAdInfo(w.Url)
 
 		if err == nil {

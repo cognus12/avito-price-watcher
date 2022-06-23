@@ -4,6 +4,7 @@ import (
 	"apricescrapper/internal/advt"
 	"apricescrapper/internal/config"
 	"apricescrapper/internal/crawler"
+	"apricescrapper/internal/observer"
 	"apricescrapper/internal/subscription"
 	"apricescrapper/pkg/logger"
 	"apricescrapper/pkg/shutdown"
@@ -57,12 +58,6 @@ func (a *app) Run() {
 	subscriptionHandler.Register(router)
 	advtHandler.Register(router)
 
-	// temp code for dev
-	// var s []string = []string{"test1@m.cc", "test2@m.cc", "test3@m.cc"}
-	// w := watcher.New("https://www.avito.ru/golovino/doma_dachi_kottedzhi/dom_144m_na_uchastke_135ga_2297206687", s, 30000, logger, advtService)
-	// w.Run()
-	// ----
-
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.Host, cfg.Port))
 
 	if err != nil {
@@ -77,6 +72,10 @@ func (a *app) Run() {
 
 	logger.Info("App started on %s:%s", cfg.Host, cfg.Port)
 
+	obs := observer.NewObserver(subscriptionService, advtService, logger)
+
+	obs.Prepare().Run()
+
 	go shutdown.Gracefull(func() {
 		server.Close()
 		crawler.Close()
@@ -90,5 +89,4 @@ func (a *app) Run() {
 			logger.Errorf(err)
 		}
 	}
-
 }

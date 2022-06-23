@@ -7,6 +7,11 @@ type SubscribtionDTO struct {
 	Email string
 }
 
+type Subscribtion struct {
+	Url         string
+	Subscribers []string
+}
+
 func (dto *SubscribtionDTO) Validate() error {
 	err := apperror.UnprocessableEntity
 

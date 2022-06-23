@@ -10,6 +10,7 @@ import (
 type Repository interface {
 	CreateSubscibtion(url string, email string) error
 	DeleteSubscibtion(url string, email string) error
+	FindAll() []SubscribtionDTO
 }
 
 type repository struct {
@@ -87,3 +88,48 @@ func (r *repository) DeleteSubscibtion(url string, email string) error {
 
 	return err
 }
+
+func (r *repository) FindAll() []SubscribtionDTO {
+	query := `
+		SELECT l.url, u.email
+		FROM subscriptions as s
+		INNER JOIN links as l
+			ON s.link_id = l.id
+		INNER JOIN users as u
+			ON s.user_id = u.id
+	`
+
+	rows, err := r.db.Query(query)
+
+	if err != nil {
+		r.logger.Panic(err.Error())
+	}
+
+	defer rows.Close()
+
+	var entries []SubscribtionDTO
+
+	for rows.Next() {
+		item := SubscribtionDTO{}
+		err := rows.Scan(&item.Url, &item.Email)
+		if err != nil {
+			r.logger.Errorf(err)
+			continue
+		}
+		entries = append(entries, item)
+	}
+
+	return entries
+}
+
+/*
+
+SELECT m.name, cp.id_category
+FROM manufacturer as m
+INNER JOIN product as p
+    ON m.id_manufacturer = p.id_manufacturer
+INNER JOIN category_product as cp
+    ON p.id_product = cp.id_product
+WHERE cp.id_category = 'some value'
+
+*/
