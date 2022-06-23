@@ -37,7 +37,7 @@ func (a *app) Run() {
 
 	crawler := crawler.Instance()
 
-	logger.Info("Connect to sqlite3, path: %v", cfg.DbPath)
+	logger.Info("Connecting to sqlite3, path: %v", cfg.DbPath)
 
 	db, err := sqlite.New(schema, cfg.DbPath)
 
@@ -45,12 +45,13 @@ func (a *app) Run() {
 		logger.Panic(err.Error())
 	}
 
+	logger.Info("Successfully connected to sqlite3, path: %v", cfg.DbPath)
+
 	subscriptionRepository := subscription.NewRepository(db)
-
 	subscriptionService := subscription.NewService(subscriptionRepository)
-	advtService := advt.NewService(crawler)
-
 	subscriptionHandler := subscription.NewHandler(subscriptionService, logger)
+
+	advtService := advt.NewService(crawler)
 	advtHandler := advt.NewHandler(advtService, logger)
 
 	subscriptionHandler.Register(router)
@@ -62,11 +63,7 @@ func (a *app) Run() {
 	// w.Run()
 	// ----
 
-	start(router, logger, crawler, cfg)
-}
-
-func start(router http.Handler, logger logger.Logger, c crawler.Crawler, config *config.Config) {
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", config.Host, config.Port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.Host, cfg.Port))
 
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -78,11 +75,11 @@ func start(router http.Handler, logger logger.Logger, c crawler.Crawler, config 
 		ReadTimeout:  15 * time.Second,
 	}
 
-	logger.Info("App started on %s:%s", config.Host, config.Port)
+	logger.Info("App started on %s:%s", cfg.Host, cfg.Port)
 
 	go shutdown.Gracefull(func() {
 		server.Close()
-		c.Close()
+		crawler.Close()
 	})
 
 	if err := server.Serve(listener); err != nil {
