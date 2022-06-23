@@ -3,6 +3,7 @@ package watcher
 import (
 	"apricescrapper/internal/advt"
 	"apricescrapper/pkg/logger"
+	"apricescrapper/pkg/slices"
 	"apricescrapper/pkg/timer"
 )
 
@@ -19,6 +20,8 @@ type watcher struct {
 type Watcher interface {
 	Run()
 	Stop()
+	AddSubscriber(email string)
+	RemoveSubscriber(email string)
 }
 
 func New(url string, subscribers []string, ms int, l logger.Logger, s advt.Service) *watcher {
@@ -33,7 +36,17 @@ func (w *watcher) Run() {
 }
 
 func (w *watcher) Stop() {
+	// to be implemented
+}
 
+func (w *watcher) AddSubscriber(email string) {
+	w.Subscribers = append(w.Subscribers, email)
+}
+
+func (w *watcher) RemoveSubscriber(email string) {
+	index := slices.IndexOf(w.Subscribers, email)
+
+	w.Subscribers = append(w.Subscribers[:index], w.Subscribers[index+1:]...)
 }
 
 func (w *watcher) observ() {
