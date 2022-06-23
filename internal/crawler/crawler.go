@@ -10,7 +10,7 @@ import (
 )
 
 type crawler struct {
-	ctx    *context.Context
+	ctx    context.Context
 	cancel context.CancelFunc
 }
 
@@ -34,15 +34,9 @@ func initialize() {
 	//Initialization parameters, first pass an empty data
 	options = append(chromedp.DefaultExecAllocatorOptions[:], options...)
 
-	ctx, _ := chromedp.NewExecAllocator(context.Background(), options...)
+	ctx, cancel := chromedp.NewExecAllocator(context.Background(), options...)
 
-	// create context
-	chromeCtx, cancel := chromedp.NewContext(ctx, chromedp.WithLogf(log.Printf))
-
-	//Execute an empty task to create a chrome instance in advance
-	chromedp.Run(chromeCtx, make([]chromedp.Action, 0, 1)...)
-
-	instance = &crawler{ctx: &chromeCtx, cancel: cancel}
+	instance = &crawler{ctx: ctx, cancel: cancel}
 }
 
 func Instance() *crawler {
@@ -70,8 +64,10 @@ func (c *crawler) GetAttribute(url string, selector string, attr string) (string
 
 	var ok bool
 
+	// create context
+	chromeCtx, cancel := chromedp.NewContext(c.ctx, chromedp.WithLogf(log.Printf))
 	//Create a context with a timeout of 60s
-	timeoutCtx, cancel := context.WithTimeout(*c.ctx, 60*time.Second)
+	timeoutCtx, cancel := context.WithTimeout(chromeCtx, 60*time.Second)
 
 	defer cancel()
 
