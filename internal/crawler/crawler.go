@@ -2,7 +2,6 @@ package crawler
 
 import (
 	"context"
-	"log"
 	"sync"
 	"time"
 
@@ -12,6 +11,7 @@ import (
 type crawler struct {
 	ctx    context.Context
 	cancel context.CancelFunc
+	b      chromedp.Browser
 }
 
 type Crawler interface {
@@ -27,8 +27,11 @@ var instance *crawler
 
 func initialize() {
 	options := []chromedp.ExecAllocatorOption{
-		chromedp.Flag("headless", true), // debug using
 		chromedp.Flag("blink-settings", "imagesEnabled=false"),
+		chromedp.DisableGPU,
+		chromedp.Headless,
+		chromedp.NoDefaultBrowserCheck,
+		chromedp.NoFirstRun,
 	}
 
 	//Initialization parameters, first pass an empty data
@@ -36,20 +39,15 @@ func initialize() {
 
 	ctx, cancel := chromedp.NewExecAllocator(context.Background(), options...)
 
-	instance = &crawler{ctx: ctx, cancel: cancel}
+	// create context
+	chromeCtx, cancel := chromedp.NewContext(ctx)
+
+	chromedp.Run(chromeCtx)
+
+	instance = &crawler{ctx: chromeCtx, cancel: cancel, b: *chromedp.FromContext(chromeCtx).Browser}
 }
 
 func Instance() *crawler {
-	// if instance == nil {
-	// 	lock.Lock()
-	// 	defer lock.Unlock()
-
-	// 	if instance == nil {
-	// 		initialize()
-	// 		return instance
-	// 	}
-	// }
-
 	once.Do(func() {
 		initialize()
 	})
@@ -64,14 +62,16 @@ func (c *crawler) GetAttribute(url string, selector string, attr string) (string
 
 	var ok bool
 
-	// create context
-	chromeCtx, cancel := chromedp.NewContext(c.ctx, chromedp.WithLogf(log.Printf))
 	//Create a context with a timeout of 60s
-	timeoutCtx, cancel := context.WithTimeout(chromeCtx, 60*time.Second)
+	ctx, cancel := context.WithTimeout(c.ctx, 60*time.Second)
 
 	defer cancel()
 
-	err = chromedp.Run(timeoutCtx,
+	ctx, cancel = chromedp.NewContext(ctx)
+
+	defer cancel()
+
+	err = chromedp.Run(ctx,
 		chromedp.Navigate(url),
 		chromedp.AttributeValue(selector, attr, &value, &ok),
 	)
@@ -84,5 +84,6 @@ func (c *crawler) GetAttribute(url string, selector string, attr string) (string
 }
 
 func (c *crawler) Close() {
+	c.b.Process().Kill()
 	c.cancel()
 }

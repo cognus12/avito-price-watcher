@@ -29,7 +29,7 @@ func (o *Observer) Prepare() *Observer {
 
 	for k, v := range m {
 
-		o.Urls[k] = watcher.New(k, v, 30000, o.logger, o.advtService)
+		o.Urls[k] = watcher.New(k, v, 60000, o.logger, o.advtService)
 	}
 
 	return o
